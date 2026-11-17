@@ -4,9 +4,11 @@
 
 适合把知识讲解、故事口播、课程字幕或短视频文案制作成暖米黄色纸张底的手绘动画。
 
+默认按 **9:16 竖屏**分镜和构图，单幕与多幕成片均为 **1080×1920**，可作为小红书、抖音和微信视频号共用的画幅。
+
 ## 效果示例
 
-**场景：猴子山抢香蕉** —— 随着字幕的叙事顺序，依次绘制假山与小猴、抢香蕉的大猴，以及围观小朋友。
+**早期横版示例「猴子山抢香蕉」**随字幕叙事依次绘制假山与小猴、抢香蕉的大猴和围观的小朋友。
 
 ![猴子山抢香蕉：SRT 白板动画演示](examples/scene-01-monkey-mountain-stream.gif)
 
@@ -26,8 +28,8 @@
 
 该 Skill 的关键在于“字幕驱动、逐步确认”。每一步完成后都等待确认，避免在分镜、线稿或标注尚未定稿时浪费渲染成本：
 
-1. 解析 SRT，输出分镜与配图策略。
-2. 确认后生成统一风格的线稿。
+1. 解析 SRT，按 9:16 竖屏输出分镜与配图策略。主体纵向排布，底部和右侧为后期字幕与播放控件留白。
+2. 确认后生成竖版线稿，统一整理为 1080×1920 PNG，再用这张图标注。
 3. 确认线稿后，结合字幕和原图创建标注，并载入预览台。
 4. 确认标注后，生成分区与方向检查图。
 5. 在预览台调整区域、叙事顺序、时序和字幕关联并保存。
@@ -71,7 +73,7 @@ assets/whiteboard/<项目名>/
 ```json
 {
   "sceneId": "scene-01",
-  "canvas": { "width": 1672, "height": 941 },
+  "canvas": { "width": 1080, "height": 1920 },
   "storyBasis": "小猴在猴子山上拿着香蕉，大猴抢走香蕉，孩子们在旁观看。",
   "sceneDurationMs": 9000,
   "elements": [
@@ -106,10 +108,16 @@ assets/whiteboard/<项目名>/
 python scripts/parse_srt.py <字幕.srt> --target-sec 30 --min-sec 25 --max-sec 35
 ```
 
+在标注前将竖版线稿等比缩放并补纸色，统一成 1080×1920 PNG。
+
+```bash
+<ENV_PY> scripts/prepare_scene_image.py <生成图> <场景PNG>
+```
+
 生成区域检查图：
 
 ```bash
-python scripts/render_annotation_preview.py <图片路径> <标注路径> <预览图输出路径>
+<ENV_PY> scripts/render_annotation_preview.py <场景PNG> <标注路径> <预览图输出路径>
 ```
 
 打开 `assets/preview.html`，使用“打开文件夹”载入场景目录，即可编辑区域、顺序、时间与字幕关联。
@@ -130,6 +138,7 @@ python scripts/render_annotation_preview.py <图片路径> <标注路径> <预�
 ## 质量检查
 
 - 首帧是干净的暖米黄纸张底色，没有提前露出的线条
+- 每幕 PNG、默认渲染的单幕 MP4 和合并 MP4 均为 1080×1920
 - `canvas` 与原图尺寸一致，所有区域都是画布内的整数像素坐标
 - `sequence`、`startMs` 与字幕的叙事顺序一致
 - 中段帧中，未开始区域和保护区不会提前出现
@@ -147,6 +156,7 @@ srt-whiteboard-animation/
 ├── examples/                         # README 案例素材
 ├── scripts/
 │   ├── parse_srt.py                  # 字幕解析与分镜建议
+│   ├── prepare_scene_image.py        # 统一竖版线稿尺寸
 │   ├── render_annotation_preview.py  # 标注检查图
 │   ├── render_stream_whiteboard.py   # 流式笔迹 MP4 渲染器
 │   ├── merge_scenes.py               # 多幕合并

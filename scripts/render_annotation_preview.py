@@ -5,13 +5,24 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 
+def _label_font():
+    for font_path in (
+        "C:/Windows/Fonts/msyh.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    ):
+        try:
+            return ImageFont.truetype(font_path, 18)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
 def main(image_path: str, annotation_path: str, output_path: str) -> None:
     image = Image.open(image_path).convert("RGBA")
     overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
-    font_file = "C:/Windows/Fonts/msyh.ttc"
-    font = ImageFont.truetype(font_file, 28)
-    small_font = ImageFont.truetype(font_file, 18)
+    small_font = _label_font()
     colors = [(38, 103, 255, 225), (255, 105, 92, 225), (41, 167, 102, 225), (181, 100, 255, 225)]
 
     data = json.loads(Path(annotation_path).read_text(encoding="utf-8"))

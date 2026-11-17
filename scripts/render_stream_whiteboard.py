@@ -472,11 +472,11 @@ def _parse_args(argv=None):
     p.add_argument("--grid-edge", type=int, default=None)
     p.add_argument("--brush-radius", type=int, default=None)
     p.add_argument("--cap-long-edge", type=int, default=None,
-                   help="输出长边像素上限（预览可调小加速，默认 1080）")
+                   help="输出长边像素（9:16 源图默认 1920，其他比例默认 1080）")
     return p.parse_args(argv)
 
 
-def _build_cfg(args) -> sr.Config:
+def _build_cfg(args, image_bgr: np.ndarray) -> sr.Config:
     kw: dict = {}
     if args.fps is not None:
         kw["fps"] = args.fps
@@ -486,6 +486,8 @@ def _build_cfg(args) -> sr.Config:
         kw["brush_radius"] = args.brush_radius
     if args.cap_long_edge is not None:
         kw["cap_long_edge"] = args.cap_long_edge
+    elif image_bgr.shape[1] * 16 == image_bgr.shape[0] * 9:
+        kw["cap_long_edge"] = 1920
     kw["ink_path_mode"] = args.ink_path
     kw["color_fill"] = args.color_fill
     kw["pause_mode"] = args.pause
@@ -494,7 +496,6 @@ def _build_cfg(args) -> sr.Config:
 
 def main(argv=None) -> int:
     args = _parse_args(argv)
-    cfg = _build_cfg(args)
 
     print("=" * 56)
     print("SRT 白板动画整合渲染器 (mask 编排 + stream 画法)")
@@ -504,6 +505,7 @@ def main(argv=None) -> int:
     if image_bgr is None:
         print(f"[err] 无法读取图片: {args.image}")
         return 1
+    cfg = _build_cfg(args, image_bgr)
     try:
         annotation = json.loads(Path(args.annotation).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
