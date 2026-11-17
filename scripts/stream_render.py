@@ -32,7 +32,7 @@ import numpy as np
 # ──────────────────────────────────────────────────────────────
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _ASSETS_DIR = _SCRIPT_DIR.parent / "assets"
-DEFAULT_HAND_PNG = _ASSETS_DIR / "drawing-hand.png"
+DEFAULT_HAND_PNG = _ASSETS_DIR / "drawing-hand-prome.png"
 
 
 def _imread_any(path: str | Path, flags: int = cv2.IMREAD_COLOR) -> np.ndarray | None:
@@ -62,12 +62,12 @@ class Config:
     gaze_seconds: float = 3.0      # 凝视段基准秒数
     ink_threshold: int = 10        # 像素灰度低于此值视为“墨迹”
     ink_reveal_radius: int = 4     # 笔尖每段轨迹可揭示线稿的半径
-    target_hand_height: int = 493  # 手部素材缩放后的目标高度（按 1080p 调校）
+    target_hand_height: int = 360  # 手部素材缩放后的目标高度（按 1080p 调校）
     # 笔尖在素材中的归一化坐标（0..1），决定落墨点对齐到素材的哪个像素。
-    # 内置 drawing-hand.png 裁剪后，笔尖落在图像左上角，故锚点取 (0, 0)。
+    # 新素材原图笔尖 (92, 110)，alpha 裁剪框 (0, 4, 1292, 1183)。
     # 这里描述的是真实落墨接触点，而非手部图像的外框。
-    tip_anchor_x: float = 0.0
-    tip_anchor_y: float = 0.0
+    tip_anchor_x: float = 92 / 1291
+    tip_anchor_y: float = 106 / 1178
     canvas_hex: str = "#F6F1E3"    # 画布底色
     match_bg: bool = True          # 把原图背景染成画布底色，使起笔/上色背景一致
     match_bg_threshold: int = 28   # 与原图背景色差异小于此值视为背景（BGR 三通道和）
@@ -1056,11 +1056,12 @@ class StreamBoardRenderer:
         # 笔尖覆盖
         self.tip: TipOverlay | None = None
         if not bare_tip:
-            hand_data = _load_hand(hand_png, cfg.target_hand_height) if hand_png else None
+            hand_height = max(1, round(cfg.target_hand_height * min(self.out_w, self.out_h) / 1080))
+            hand_data = _load_hand(hand_png, hand_height) if hand_png else None
             tip_anchor_x = cfg.tip_anchor_x
             tip_anchor_y = cfg.tip_anchor_y
             if hand_data is None:
-                hand_data = _procedural_tip(cfg.target_hand_height)
+                hand_data = _procedural_tip(hand_height)
                 tip_anchor_x = 0.5
                 tip_anchor_y = 0.70
             self.tip = TipOverlay(
@@ -1696,7 +1697,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--bare-tip", action="store_true", help="不叠加笔尖/手部覆盖")
     p.add_argument(
         "--pen-image", default=str(DEFAULT_HAND_PNG),
-        help="自定义笔尖/手部素材路径 (默认: skill 内置 drawing-hand.png)",
+        help="自定义笔尖/手部素材路径 (默认: skill 内置 drawing-hand-prome.png)",
     )
     p.add_argument("--fps", type=int, default=None, help="覆盖默认帧率")
     p.add_argument("--grid-edge", type=int, default=None, help="覆盖默认网格边长")
