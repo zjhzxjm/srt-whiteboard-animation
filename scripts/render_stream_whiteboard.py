@@ -35,7 +35,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_SCRIPT_DIR))
 import stream_render as sr  # noqa: E402
 
-DEFAULT_HAND = _SCRIPT_DIR.parent / "assets" / "drawing-hand.png"
+DEFAULT_HAND = _SCRIPT_DIR.parent / "assets" / "drawing-hand-prome.png"
 
 
 # ──────────────────────────────────────────────────────────────
@@ -109,10 +109,11 @@ class RegionStreamRenderer:
         # 笔尖覆盖
         self.tip: sr.TipOverlay | None = None
         if not bare_tip:
-            hand_data = sr._load_hand(hand_png, cfg.target_hand_height) if hand_png else None
+            hand_height = max(1, round(cfg.target_hand_height * min(self.out_w, self.out_h) / 1080))
+            hand_data = sr._load_hand(hand_png, hand_height) if hand_png else None
             ax, ay = cfg.tip_anchor_x, cfg.tip_anchor_y
             if hand_data is None:
-                hand_data = sr._procedural_tip(cfg.target_hand_height)
+                hand_data = sr._procedural_tip(hand_height)
                 ax, ay = 0.5, 0.70
             self.tip = sr.TipOverlay(hand_data[0], hand_data[1], tip_anchor_x=ax, tip_anchor_y=ay)
 

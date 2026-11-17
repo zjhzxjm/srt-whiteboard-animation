@@ -125,7 +125,7 @@ python scripts/parse_srt.py <字幕.srt> --target-sec 30 --min-sec 25 --max-sec 
 渲染单幕：
 
 ```bash
-<ENV_PY> scripts/render_stream_whiteboard.py <图片路径> <标注路径> <输出.mp4> assets/drawing-hand.png \
+<ENV_PY> scripts/render_stream_whiteboard.py <图片路径> <标注路径> <输出.mp4> assets/drawing-hand-prome.png \
   --ink-path grid --color-fill contour-wipe
 ```
 

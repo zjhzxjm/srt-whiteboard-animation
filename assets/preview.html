@@ -131,7 +131,7 @@ const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 
 const canvas = $('canvas'), ctx = canvas.getContext('2d');
 const mask = document.createElement('canvas'), maskCtx = mask.getContext('2d');
-const hand = new Image(); hand.src = './drawing-hand.png';
+const hand = new Image(); hand.src = './drawing-hand-prome.png';
 
 const S = { scenes: [], idx: -1, cfg: null, cfgHandle: null, dirHandle: null,
             source: null, paper: '#fdf0d0', time: 0, sel: 0, playing: false, last: 0,
@@ -270,8 +270,9 @@ function render() {
     });
     ctx.drawImage(mask, 0, 0);
     if (active && hand.complete && hand.naturalWidth) {
-      const [e, p] = active, [tx, ty] = tipPos(e, p), s = w / 1672 * 0.42;
-      ctx.drawImage(hand, tx - 115*s, ty - 77*s, hand.width*s, hand.height*s);
+      const [e, p] = active, [tx, ty] = tipPos(e, p);
+      const scale = 360 * Math.min(w, h) / 1080 / 1179;
+      ctx.drawImage(hand, 0, 4, 1292, 1179, tx - 92*scale, ty - 106*scale, 1292*scale, 1179*scale);
     }
   }
   if (S.showOverlay && arr.length) drawOverlay();
