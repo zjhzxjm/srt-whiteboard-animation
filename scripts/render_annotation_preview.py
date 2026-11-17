@@ -8,6 +8,8 @@ from PIL import Image, ImageDraw, ImageFont
 def _label_font():
     for font_path in (
         "C:/Windows/Fonts/msyh.ttc",
+        Path.home() / "Library/Fonts/Alibaba-PuHuiTi-Regular.ttf",
+        "/Library/Fonts/Alibaba-PuHuiTi-Regular.ttf",
         "/System/Library/Fonts/Hiragino Sans GB.ttc",
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     ):
